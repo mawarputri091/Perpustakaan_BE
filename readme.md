@@ -3,7 +3,6 @@
 ```bash
 $ git clone https://github.com/alitade/yadika-pplg-xi-be.git [kls-tim-project]
 $ rm -rf .git
-$
 $ git init
 $ git add . 
 $ git commit -m "first commit"
