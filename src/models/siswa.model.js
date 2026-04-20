@@ -28,7 +28,7 @@ exports.create = async (data) => {
 // todo: siswa harus validasi kelas exist
 exports.findByKelas = async (kodeKelas) => {
   const [rows] = await db.query(
-    'SELECT * FROM siswa WHERE kelas_kode = ?',
+    'SELECT * FROM siswa WHERE kode_kelas = ?',
     [kodeKelas]
   )
   return rows
