@@ -1,40 +1,48 @@
+const AppError = require('../errors/AppError')
 const siswaModel = require('../models/siswa.model')
-const kelasModel = require('../models/kelas.model') // untuk validasi kelas exist
 
-class SiswaService {
-  async getAllSiswa() {
-    return await siswaModel.findAll()
+exports.create = async (data) => {
+  const { id, nama, nis, kode_kelas } = data
+
+  if (!id || !nama || !nis || !kode_kelas) {
+    throw new AppError('INVALID_PAYLOAD', 400)
   }
 
-  async getSiswaById(id) {
-    const siswa = await siswaModel.findById(id)
-    if (!siswa) throw new Error('Siswa tidak ditemukan')
-    return siswa
-  }
+  try {
+    await siswaModel.create(data)
+  } catch (error) {
+    if (error.message === 'Kelas tidak ditemukan') {
+      throw new AppError('KELAS_NOT_FOUND', 404)
+    }
 
-  async createSiswa(data) {
-    if (!data.nama || !data.kelas) {
-      throw new Error('Nama dan kelas wajib diisi')
-    }
-    
-    if (data.kode_kelas) {
-      const kelas = await kelasModel.findById(data.kode_kelas)
-      if (!kelas) {
-        throw new Error('Kelas tidak ditemukan')
-      }
-    }
-    
-    return await siswaModel.create(data)
-  }
-  
-  async getSiswaByKelas(kodeKelas) {
-    // validasi kelas exist dulu
-    const kelas = await kelasModel.findById(kodeKelas)
-    if (!kelas) {
-      throw new Error('Kelas tidak ditemukan')
-    }
-    return await siswaModel.findByKelas(kodeKelas)
+    throw error
   }
 }
 
-module.exports = new SiswaService()
+exports.update = async (id, data) => {
+  const siswa = await siswaModel.findById(id)
+  if (!siswa) {
+    const error = new Error('Siswa tidak ditemukan')
+    error.statusCode = 404
+    throw error
+  }
+
+  const updateData = {
+    nama: data.nama || siswa.nama,
+    nis: data.nis || siswa.nis,
+    kode_kelas: data.kode_kelas || siswa.kode_kelas
+  }
+
+  await siswaModel.update(id, updateData)
+}
+
+exports.delete = async (id) => {
+  const siswa = await siswaModel.findById(id)
+  if (!siswa) {
+    const error = new Error('Siswa tidak ditemukan')
+    error.statusCode = 404
+    throw error
+  }
+
+  await siswaModel.delete(id)
+}
