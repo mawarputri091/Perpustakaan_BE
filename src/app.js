@@ -22,6 +22,9 @@ app.use('/kelas', kelasRoutes)
 const siswaRoutes = require('./routes/siswa.routes')
 app.use('/siswa', siswaRoutes)
 
+const bukuRoutes = require ('./routes/buku.routes')
+app.use('/buku', bukuRoutes)
+
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
