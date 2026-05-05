@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 
-app.use(cors);
+app.use(cors());
 
 app.use(express.json())
 
@@ -27,6 +27,9 @@ app.use('/siswa', siswaRoutes)
 
 const bukuRoutes = require ('./routes/buku.routes')
 app.use('/buku', bukuRoutes)
+
+const peminjamanRoutes = require('./routes/peminjaman.routes');
+app.use('/api/peminjaman', peminjamanRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
