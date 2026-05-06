@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const peminjamanController = require('../controllers/peminjaman.controller');
-const { authenticateToken, authorizeAdmin } = require('../middlewares/auth');
+const { authenticateToken, authorizeAdmin } = require('../middlewares/auth.middleware');
 
 // Semua route memerlukan authentication
 router.use(authenticateToken);

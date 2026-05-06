@@ -1,8 +1,8 @@
 // src/services/peminjamanService.js
 const PeminjamanModel = require('../models/peminjaman.model');
-const BukuModel = require('../models/bukuModel');
-const SiswaModel = require('../models/siswaModel');
-const { BadRequestError, NotFoundError } = require('../errors');
+const BukuModel = require('../models/buku.model');
+const SiswaModel = require('../models/siswa.model');
+const { BadRequestError, NotFoundError } = require('../errors/AppError');
 
 class PeminjamanService {
   // Helper untuk format date

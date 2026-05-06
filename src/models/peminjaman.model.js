@@ -1,5 +1,5 @@
 // src/models/peminjamanModel.js
-const knex = require('../config/js/db');
+const db = require('../config/db');
 
 class PeminjamanModel {
   // Create peminjaman baru
