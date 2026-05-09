@@ -11,4 +11,6 @@ exports.seed = async function (knex) {
     { kode_kelas: "XII-PPLG-2", nama_kelas: 'XII PPLG 2',},
     { kode_kelas: "XII-PPLG-3", nama_kelas: 'XII PPLG 3',},
   ])
+  .onConflict('id')  // Jika ID sudah ada
+    .ignore()  // Abaikan, tidak melakukan apa-apa
 };

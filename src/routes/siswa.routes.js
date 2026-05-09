@@ -22,4 +22,6 @@ router.put('/:id', authMiddleware, siswaController.update)
 
 router.delete('/:id', authMiddleware, siswaController.delete)
 
+router.delete('/hard/:id', authMiddleware, siswaController.hardDelete)
+
 module.exports = router

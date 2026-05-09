@@ -22,4 +22,6 @@ exports.seed = async function (knex) {
       foto_buku: "public/uploads/1777895478152_742705589.jpg"
     },
   ])
+  .onConflict('id')  // Jika ID sudah ada
+    .ignore()  // Abaikan, tidak melakukan apa-apa
 };
