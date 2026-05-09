@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const kelasController = require('../controllers/kelas.controller')
-const authMiddleware = require('../middlewares/auth.middleware')
+const { authenticateToken: authMiddleware } = require('../middlewares/auth.middleware')
 
 // Route untuk kelas (semua terproteksi auth)
 router.get('/', authMiddleware, kelasController.getAll)

@@ -3,7 +3,7 @@ const router = express.Router()
 
 const siswaModel = require('../models/siswa.model')
 const siswaController = require('../controllers/siswa.controller')
-const authMiddleware = require('../middlewares/auth.middleware')
+const { authenticateToken: authMiddleware } = require('../middlewares/auth.middleware')
 
 router.get('/', authMiddleware, async (req, res) => {
   const data = await siswaModel.findAll()
