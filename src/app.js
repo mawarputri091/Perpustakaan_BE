@@ -28,8 +28,8 @@ app.use('/siswa', siswaRoutes)
 const bukuRoutes = require ('./routes/buku.routes')
 app.use('/buku', bukuRoutes)
 
-const peminjamanRoutes = require('./routes/peminjaman.routes');
-app.use('/api/peminjaman', peminjamanRoutes);
+const peminjamanRoutes = require('./routes/peminjaman.routes')
+app.use('/peminjaman', peminjamanRoutes)
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

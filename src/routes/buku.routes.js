@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const bukuController = require('../controllers/buku.controller');
-const authMiddleware = require('../middlewares/auth.middleware');
+const { authenticateToken: authMiddleware } = require('../middlewares/auth.middleware')
 const upload = require('../middlewares/upload.middleware');
 
 // Route untuk hard delete (biasanya pakai method DELETE juga, tapi beda endpoint)
