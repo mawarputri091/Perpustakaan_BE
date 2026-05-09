@@ -21,12 +21,24 @@ exports.pinjam = asyncHandler(async (req, res) => {
   res.status(201).json({ status: 'success', message: 'Buku berhasil dipinjam', data })
 })
 
+exports.perpanjang = asyncHandler(async (req, res) => {
+  const result = await peminjamanService.perpanjang(req.params.id)
+  res.json({
+    status: 'success',
+    message: 'Peminjaman berhasil diperpanjang 7 hari',
+    data: result
+  })
+})
+
 exports.kembalikan = asyncHandler(async (req, res) => {
   const result = await peminjamanService.kembalikan(req.params.id)
   res.json({
     status: 'success',
     message: result.terlambat
-      ? 'Buku dikembalikan (terlambat)'
-      : 'Buku berhasil dikembalikan tepat waktu'
+      ? `Buku dikembalikan terlambat ${result.hariTerlambat} hari`
+      : 'Buku berhasil dikembalikan tepat waktu',
+    denda: result.denda > 0
+      ? `Rp ${result.denda.toLocaleString('id-ID')}`
+      : 'Tidak ada denda'
   })
 })

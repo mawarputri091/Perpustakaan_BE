@@ -56,9 +56,17 @@ exports.create = async (data) => {
 
 exports.update = async (id, data) => {
   await db.query(`
-    UPDATE peminjaman SET tanggal_dikembalikan = ?, status = ?, updated_at = NOW()
+    UPDATE peminjaman SET tanggal_dikembalikan = ?, status = ?, denda = ?, updated_at = NOW()
     WHERE id = ?
-  `, [data.tanggal_dikembalikan, data.status, id])
+  `, [data.tanggal_dikembalikan, data.status, data.denda, id])
+}
+
+exports.perpanjang = async (id, tanggal_kembali_baru) => {
+  await db.query(`
+    UPDATE peminjaman 
+    SET tanggal_kembali = ?, jumlah_perpanjangan = jumlah_perpanjangan + 1, updated_at = NOW()
+    WHERE id = ?
+  `, [tanggal_kembali_baru, id])
 }
 
 exports.softDelete = async (id) => {

@@ -1,7 +1,3 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
 exports.up = function(knex) {
   return knex.schema.createTableIfNotExists('peminjaman', function(table) {
     table.uuid('id').primary()
@@ -11,6 +7,8 @@ exports.up = function(knex) {
     table.timestamp('tanggal_kembali').notNullable()       // deadline pengembalian
     table.timestamp('tanggal_dikembalikan').nullable()     // diisi saat buku dikembalikan
     table.string('status').defaultTo('dipinjam')           // dipinjam | dikembalikan | terlambat
+    table.integer('jumlah_perpanjangan').defaultTo(0)      // tracking berapa kali diperpanjang
+    table.integer('denda').defaultTo(0)                    // denda keterlambatan (Rp 2.000/hari)
     table.timestamps(true, true)
     table.timestamp('deleted_at').nullable()
   })
@@ -19,11 +17,3 @@ exports.up = function(knex) {
 exports.down = function(knex) {
   return knex.schema.dropTableIfExists('peminjaman')
 }
-
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = function(knex) {
-  
-};

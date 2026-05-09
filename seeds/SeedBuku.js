@@ -28,4 +28,4 @@ exports.seed = async function (knex) {
       stok: 5
     },
   ])
-}
+};

@@ -33,9 +33,7 @@ exports.update = async (kode_kelas, data) => {
   const kelas = await kelasModel.findById(kode_kelas)
 
   if (!kelas) {
-    const error = new Error("Kelas tidak ditemukan")
-    error.statusCode = 404
-    throw error
+    throw new AppError('KELAS_NOT_FOUND', 404)
   }
 
   const updateData = {
@@ -50,10 +48,21 @@ exports.delete = async (kode_kelas) => {
   const kelas = await kelasModel.findById(kode_kelas)
 
   if (!kelas) {
-    const error = new Error("Kelas tidak ditemukan")
-    error.statusCode = 404
-    throw error
+    throw new AppError('KELAS_NOT_FOUND', 404)
   }
 
   await kelasModel.delete(kode_kelas)
+}
+
+// HARD DELETE (permanen) - Menghapus data secara fisik dari database
+exports.hardDelete = async (kode_kelas) => {
+  // Cek apakah data ada (termasuk yang sudah soft delete)
+  // Kita perlu query langsung ke model atau buat method baru untuk cek semua data
+  const kelas = await kelasModel.findByIdIncludingDeleted(kode_kelas)
+  
+  if (!kelas) {
+    throw new AppError('KELAS_NOT_FOUND', 404)
+  }
+
+  await kelasModel.hardDelete(kode_kelas)
 }

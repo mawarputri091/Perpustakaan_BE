@@ -46,3 +46,16 @@ exports.delete = async (id) => {
 
   await siswaModel.delete(id)
 }
+
+// HARD DELETE (permanen) - Menghapus data secara fisik dari database
+exports.hardDelete = async (id) => {
+  // Cek apakah data ada (termasuk yang sudah soft delete)
+  // Kita perlu query langsung ke model atau buat method baru untuk cek semua data
+  const siswa = await siswaModel.findByIdIncludingDeleted(id)
+
+  if (!siswa) {
+    throw new AppError('SISWA_NOT_FOUND', 404)
+  }
+
+  await siswaModel.hardDelete(id)
+}

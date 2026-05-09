@@ -15,3 +15,9 @@ exports.delete = asyncHandler(async (req, res) => {
   await userService.deleteUser(req.params.id)
   res.json({ message: 'User deleted' })
 })
+
+// HARD DELETE (permanen) - Menghapus data secara fisik dari database
+exports.hardDelete = asyncHandler(async (req, res) => {
+  await userService.hardDeleteUser(req.params.id)
+  res.json({ message: 'User dihapus permanen' })
+})

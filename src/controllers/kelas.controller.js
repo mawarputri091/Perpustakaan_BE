@@ -17,11 +17,17 @@ exports.create = asyncHandler(async (req, res) => {
 })
 
 exports.update = asyncHandler(async (req, res) => {
-  await kelasService.update(req.params.id, req.body)
+  await kelasService.update(req.params.kode_kelas, req.body)
   res.json({ message: 'Kelas diperbarui' })
 })
 
 exports.delete = asyncHandler(async (req, res) => {
-  await kelasService.delete(req.params.id)
+  await kelasService.delete(req.params.kode_kelas)
   res.json({ message: 'Kelas dihapus' })
+})
+
+// HARD DELETE (permanen) - Menghapus data secara fisik dari database
+exports.hardDelete = asyncHandler(async (req, res) => {
+  await kelasService.hardDelete(req.params.kode_kelas)
+  res.json({ message: 'Kelas dihapus permanen' })
 })
