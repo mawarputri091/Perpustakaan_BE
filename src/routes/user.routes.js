@@ -7,5 +7,6 @@ const authMiddleware = require('../middlewares/auth.middleware')
 router.get('/', authMiddleware, userController.getAll)
 router.get('/:id', authMiddleware, userController.getById)
 router.delete('/:id', authMiddleware, userController.delete)
+router.delete('/:id/hard', authMiddleware, userController.hardDelete)
 
 module.exports = router

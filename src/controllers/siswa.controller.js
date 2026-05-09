@@ -17,3 +17,9 @@ exports.delete = asyncHandler(async (req, res) => {
   await siswaService.delete(req.params.id)
   res.status(200).json({ message: 'Siswa deleted' })
 })
+
+// HARD DELETE (permanen) - Menghapus data secara fisik dari database
+exports.hardDelete = asyncHandler(async (req, res) => {
+  await siswaService.hardDelete(req.params.id)
+  res.json({ message: 'Siswa dihapus permanen' })
+})
