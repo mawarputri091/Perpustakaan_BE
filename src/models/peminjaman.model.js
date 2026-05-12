@@ -8,7 +8,7 @@ exports.findAll = async () => {
     FROM peminjaman p
     JOIN siswa s ON p.siswa_id = s.id
     JOIN buku b ON p.buku_id = b.id
-    WHERE p.deleted_at IS NULL OR p.deleted_at = '0000-00-00 00:00:00'
+    WHERE p.deleted_at IS NULL
   `)
   return rows
 }
@@ -21,7 +21,7 @@ exports.findById = async (id) => {
     FROM peminjaman p
     JOIN siswa s ON p.siswa_id = s.id
     JOIN buku b ON p.buku_id = b.id
-    WHERE p.id = ? AND (p.deleted_at IS NULL OR p.deleted_at = '0000-00-00 00:00:00')
+    WHERE p.id = ? AND p.deleted_at IS NULL
   `, [id])
   return rows[0]
 }
@@ -32,7 +32,7 @@ exports.findBySiswaId = async (siswa_id) => {
       b.nama_buku, b.jenis_buku
     FROM peminjaman p
     JOIN buku b ON p.buku_id = b.id
-    WHERE p.siswa_id = ? AND (p.deleted_at IS NULL OR p.deleted_at = '0000-00-00 00:00:00')
+    WHERE p.siswa_id = ? AND p.deleted_at IS NULL
     ORDER BY p.created_at DESC
   `, [siswa_id])
   return rows
@@ -41,8 +41,7 @@ exports.findBySiswaId = async (siswa_id) => {
 exports.findAktifBySiswaAndBuku = async (siswa_id, buku_id) => {
   const [rows] = await db.query(`
     SELECT * FROM peminjaman
-    WHERE siswa_id = ? AND buku_id = ? AND status = 'dipinjam'
-    AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')
+    WHERE siswa_id = ? AND buku_id = ? AND status = 'dipinjam' AND deleted_at IS NULL
   `, [siswa_id, buku_id])
   return rows[0]
 }
