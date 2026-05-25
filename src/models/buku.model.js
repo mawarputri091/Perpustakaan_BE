@@ -1,10 +1,17 @@
 const db = require('../config/db');
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+
+const formatFoto = (rows) => rows.map(row => ({
+  ...row,
+  foto_buku: row.foto_buku ? `${BASE_URL}/uploads/${row.foto_buku}` : null
+}))
+
 exports.getAll = async () => {
     const [rows] = await db.query(
         'SELECT * FROM buku WHERE deleted_at IS NULL'
     );
-    return rows;
+    return formatFoto(rows);
 };
 
 exports.getByName = async (nama_buku) => {
@@ -12,7 +19,7 @@ exports.getByName = async (nama_buku) => {
         'SELECT * FROM buku WHERE nama_buku = ? AND deleted_at IS NULL',
         [nama_buku]
     );
-    return rows[0];
+    return rows[0] ? formatFoto(rows)[0] : null;
 };
 
 exports.getById = async (id) => {
@@ -20,7 +27,7 @@ exports.getById = async (id) => {
         'SELECT * FROM buku WHERE id = ? AND deleted_at IS NULL',
         [id]
     );
-    return rows[0];
+    return rows[0] ? formatFoto(rows)[0] : null;
 };
 
 exports.create = async (data) => {
