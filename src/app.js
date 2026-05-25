@@ -28,6 +28,8 @@ app.use('/siswa', siswaRoutes)
 const bukuRoutes = require ('./routes/buku.routes')
 app.use('/buku', bukuRoutes)
 
+app.use('/uploads', express.static('public/uploads'))
+
 const peminjamanRoutes = require('./routes/peminjaman.routes')
 app.use('/peminjaman', peminjamanRoutes)
 
