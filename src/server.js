@@ -7,5 +7,5 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server jalan di:`)
   console.log(`  - http://localhost:3000`)
-  console.log(`  - http://192.168.1.6:3000`)
+  console.log(`  - http://10.134.199.62:3000`)
 })
