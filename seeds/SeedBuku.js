@@ -9,7 +9,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713736192_353463967.jpeg",
-      stok: 0,
+      stok: 3,
     },
     { 
       id: '03f65a47-b688-486a-a678-d8e2f4a58905', 
@@ -17,7 +17,7 @@ exports.seed = async function (knex) {
       harga_buku: 600000.00, 
       jenis_buku: "Religion",
       foto_buku: "1779691709566_432802958.jpeg",
-      stok: 1,
+      stok: 3,
     },
     { 
       id: '2419e2f2-4ab1-4a1b-bb08-4281467b66a9', 
@@ -25,7 +25,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713699589_875562527.jpg",
-      stok: 0,
+      stok: 11,
     },
     { 
       id: '2a448950-2250-4ca9-9a55-d9fb12e935d3', 
@@ -33,7 +33,15 @@ exports.seed = async function (knex) {
       harga_buku: 300000.00, 
       jenis_buku: "Novel",
       foto_buku: "1779713231411_162132931.jpg",
-      stok: 0,
+      stok: 9,
+    },
+    { 
+      id: '3c599847-f901-42d4-820f-e6a7e6944084', 
+      nama_buku: "The Brothers Karamazov", 
+      harga_buku: 200000.00, 
+      jenis_buku: "Novel",
+      foto_buku: "1779756780853_336333141.jpeg",
+      stok: 7,
     },
     { 
       id: '3cd2d1b9-a08a-4927-8174-527400b49de0', 
@@ -41,7 +49,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779714097082_90056094.jpg",
-      stok: 0,
+      stok: 2,
     },
     { 
       id: '413e7967-e02d-4e88-8ad7-d3b079435577', 
@@ -49,7 +57,15 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713625260_76299213.jpg",
-      stok: 0,
+      stok: 3,
+    },
+    { 
+      id: '430103c6-46b8-416a-918a-223c2d576ef6', 
+      nama_buku: "A Child Called It", 
+      harga_buku: 150000.00, 
+      jenis_buku: "Autobiography",
+      foto_buku: "1781007804898_887675621.jpg",
+      stok: 10,
     },
     { 
       id: '4da5ee21-217d-4473-9c80-3e75547999c8', 
@@ -57,7 +73,7 @@ exports.seed = async function (knex) {
       harga_buku: 400000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713276851_551949891.jpg",
-      stok: 0,
+      stok: 6,
     },
     { 
       id: '5bd89053-21b4-48d1-8a91-d5442f377960', 
@@ -65,7 +81,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779714017047_153125249.jpg",
-      stok: 0,
+      stok: 4,
     },
     { 
       id: '66edbb6f-7b95-4602-b270-d0d2d2ddec9e', 
@@ -73,7 +89,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713547211_15516590.jpeg",
-      stok: 0,
+      stok: 5,
     },
     { 
       id: '72b10c32-cefe-421c-95db-d887c9630d71', 
@@ -89,7 +105,15 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713773845_474667998.jpg",
-      stok: 0,
+      stok: 3,
+    },
+    { 
+      id: '83c27123-18e6-4a3b-82c8-077e08ad13d7', 
+      nama_buku: "The Adolescent", 
+      harga_buku: 200000.00, 
+      jenis_buku: "Novel",
+      foto_buku: "1779756922742_536970075.jpeg",
+      stok: 9,
     },
     { 
       id: 'ba2e6b3d-2142-47ba-acb0-ab3933c6c081', 
@@ -97,7 +121,15 @@ exports.seed = async function (knex) {
       harga_buku: 200000.00, 
       jenis_buku: "Novel",
       foto_buku: "1779713333010_204098054.jpg",
-      stok: 0,
+      stok: 8,
+    },
+    { 
+      id: 'c0d773f2-3c4a-4b78-8592-8a039c368c1b', 
+      nama_buku: "Janji", 
+      harga_buku: 200000.00, 
+      jenis_buku: "Novel",
+      foto_buku: "1779756056334_422465656.jpeg",
+      stok: 7,
     },
     { 
       id: 'c29586e0-a17c-4b6d-a224-d76321bc9955', 
@@ -105,7 +137,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713574665_129838409.jpg",
-      stok: 0,
+      stok: 2,
     },
     { 
       id: 'c341b7a0-cd1e-4347-9f98-7f26d139808b', 
@@ -113,7 +145,7 @@ exports.seed = async function (knex) {
       harga_buku: 300000.00, 
       jenis_buku: "Novel",
       foto_buku: "1779713815032_885910482.jpg",
-      stok: 0,
+      stok: 5,
     },
     { 
       id: 'c761e155-7d7c-4ad7-9aef-032f1356c170', 
@@ -137,7 +169,15 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713927498_459229342.jpeg",
-      stok: 0,
+      stok: 3,
+    },
+    { 
+      id: 'cf3abd51-efd8-4e3e-83b2-62d2bccba044', 
+      nama_buku: "White Nights", 
+      harga_buku: 200000.00, 
+      jenis_buku: "Novel",
+      foto_buku: "1779756703026_853211111.jpg",
+      stok: 4,
     },
     { 
       id: 'dc53cd00-d80d-4114-9986-669c2e59a05f', 
@@ -145,7 +185,7 @@ exports.seed = async function (knex) {
       harga_buku: 500000.00, 
       jenis_buku: "Politic",
       foto_buku: "1779713466456_631356609.jpeg",
-      stok: 0,
+      stok: 2,
     },
     { 
       id: 'e8b68bba-5e1c-45c7-9b7c-e5b0b22401b4', 
@@ -153,7 +193,15 @@ exports.seed = async function (knex) {
       harga_buku: 400000.00, 
       jenis_buku: "Novel",
       foto_buku: "1779714134142_708321276.jpg",
-      stok: 0,
+      stok: 3,
     },
+    { 
+      id: 'fc7bd5b7-fcd8-4095-9cda-546fc986db50', 
+      nama_buku: "The Idiot", 
+      harga_buku: 200000.00, 
+      jenis_buku: "Novel",
+      foto_buku: "1779756827736_655847212.jpeg",
+      stok: 3,
+    }
   ])
 };
