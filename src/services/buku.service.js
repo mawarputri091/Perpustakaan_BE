@@ -28,6 +28,7 @@ const safeUnlink = (fullPath, label) => {
 };
 
 // CREATE - Membuat data buku baru
+
 exports.createData = async (data, files) => {
     if (!data.nama_buku || !data.harga_buku || !data.jenis_buku) {
         const error = new Error('INVALID_PAYLOAD');
@@ -44,8 +45,10 @@ exports.createData = async (data, files) => {
 
     const id = crypto.randomUUID();
 
+
     // ✅ Pisahkan foto & pdf dari array files
     const { foto, pdf } = pickFiles(files);
+
 
     const newData = {
         id,
@@ -80,6 +83,7 @@ exports.getDataById = async (id) => {
 };
 
 // UPDATE - Mengupdate buku
+
 exports.updateData = async (id, data, files) => {
     // ✅ Pakai getByIdRaw supaya foto_buku/pdf_buku masih berupa nama file (bukan URL)
     const existingBuku = await bukuModel.getByIdRaw(id);
@@ -88,6 +92,7 @@ exports.updateData = async (id, data, files) => {
         error.statusCode = 404;
         throw error;
     }
+
 
     // ✅ Pisahkan foto & pdf dari array files
     const { foto, pdf } = pickFiles(files);
@@ -102,7 +107,18 @@ exports.updateData = async (id, data, files) => {
         safeUnlink(path.join(PDF_DIR, existingBuku.pdf_buku), 'PDF lama');
     }
 
-    // Siapkan data untuk update
+    // Jika ada file PDF baru, hapus PDF lama dari disk
+    if (pdfFile && existingBuku.pdf_buku) {
+        const oldPdfPath = path.join(__dirname, '../public/uploads/pdfs', existingBuku.pdf_buku);
+        if (fs.existsSync(oldPdfPath)) {
+            fs.unlinkSync(oldPdfPath);
+        }
+    }
+
+    // Siapkan data untuk update.
+    // Catatan: di model, query UPDATE pakai COALESCE — kalau value yang dikirim NULL,
+    // kolom lama di database akan dipertahankan otomatis. Jadi aman kirim null di sini
+    // kalau tidak ada file baru / field baru.
     const updateData = {
         nama_buku:  data.nama_buku  || existingBuku.nama_buku,
         harga_buku: data.harga_buku || existingBuku.harga_buku,
@@ -114,6 +130,7 @@ exports.updateData = async (id, data, files) => {
 
     await bukuModel.update(id, updateData);
     return { id, ...updateData };
+
 };
 
 // DELETE - Soft delete buku
@@ -131,6 +148,7 @@ exports.deleteData = async (id) => {
 
 // HARD DELETE - Menghapus buku secara permanen
 exports.hardDeleteData = async (id) => {
+
     // getByIdIncludeDeleted sudah return raw row, jadi field foto_buku/pdf_buku masih nama file
     const existingBuku = await bukuModel.getByIdIncludeDeleted(id);
 
@@ -146,11 +164,13 @@ exports.hardDeleteData = async (id) => {
 
     if (existingBuku.pdf_buku) {
         safeUnlink(path.join(PDF_DIR, existingBuku.pdf_buku), `PDF ${existingBuku.pdf_buku}`);
+
     }
 
     await bukuModel.hardDelete(id);
     return true;
 };
+
 
 // Upload PDF untuk buku
 exports.uploadPDF = async (id, file) => {
@@ -170,6 +190,7 @@ exports.uploadPDF = async (id, file) => {
     // Simpan PDF baru
     const pdf_buku = file.filename;
     await bukuModel.updatePDF(id, pdf_buku);
+
 
     // Ambil data terbaru (dengan URL lengkap untuk response)
     const updatedBuku = await bukuModel.getById(id);
@@ -191,6 +212,7 @@ exports.deletePDF = async (id) => {
         error.statusCode = 404;
         throw error;
     }
+
 
     // Hapus file PDF fisik
     safeUnlink(path.join(PDF_DIR, existingBuku.pdf_buku), `PDF ${existingBuku.pdf_buku}`);

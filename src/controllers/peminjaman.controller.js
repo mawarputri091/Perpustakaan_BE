@@ -2,7 +2,11 @@ const asyncHandler = require('../utils/asyncHandler')
 const peminjamanService = require('../services/peminjaman.service')
 
 exports.getAll = asyncHandler(async (req, res) => {
-  const data = await peminjamanService.getAll()
+  // ✅ BARU: support filter ?status=menunggu / dipinjam / dikembalikan / terlambat / ditolak
+  const { status } = req.query
+  const data = status
+    ? await peminjamanService.getByStatus(status)
+    : await peminjamanService.getAll()
   res.json({ status: 'success', data })
 })
 
@@ -16,9 +20,44 @@ exports.getBySiswaId = asyncHandler(async (req, res) => {
   res.json({ status: 'success', data })
 })
 
+// Siswa mengajukan peminjaman (online) → status awal 'menunggu'
 exports.pinjam = asyncHandler(async (req, res) => {
   const data = await peminjamanService.pinjam(req.body)
-  res.status(201).json({ status: 'success', message: 'Buku berhasil dipinjam', data })
+  res.status(201).json({
+    status: 'success',
+    message: 'Pengajuan peminjaman berhasil dikirim, menunggu persetujuan admin',
+    data
+  })
+})
+
+// ✅ BARU: admin ACC pengajuan peminjaman → status jadi 'dipinjam'
+exports.approve = asyncHandler(async (req, res) => {
+  const data = await peminjamanService.approve(req.params.id)
+  res.json({
+    status: 'success',
+    message: 'Peminjaman berhasil disetujui',
+    data
+  })
+})
+
+// ✅ BARU: admin tolak pengajuan peminjaman → status jadi 'ditolak'
+exports.reject = asyncHandler(async (req, res) => {
+  const data = await peminjamanService.reject(req.params.id)
+  res.json({
+    status: 'success',
+    message: 'Peminjaman berhasil ditolak',
+    data
+  })
+})
+
+// ✅ BARU: admin input peminjaman offline (siswa datang langsung) → langsung 'dipinjam'
+exports.pinjamOffline = asyncHandler(async (req, res) => {
+  const data = await peminjamanService.pinjamOffline(req.body)
+  res.status(201).json({
+    status: 'success',
+    message: 'Peminjaman offline berhasil dicatat',
+    data
+  })
 })
 
 exports.perpanjang = asyncHandler(async (req, res) => {

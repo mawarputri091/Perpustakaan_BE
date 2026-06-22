@@ -8,6 +8,7 @@ const formatFoto = (rows) => rows.map(row => ({
     pdf_buku:  row.pdf_buku  ? `${BASE_URL}/uploads/pdfs/${row.pdf_buku}` : null
 }));
 
+
 exports.getAll = async () => {
     const [rows] = await db.query(
         'SELECT * FROM buku WHERE deleted_at IS NULL'
@@ -57,6 +58,9 @@ exports.create = async (data) => {
 };
 
 exports.update = async (id, data) => {
+    // Catatan: COALESCE(?, kolom) di sini mengandalkan nilai NULL (bukan string kosong "")
+    // untuk "skip update" dan mempertahankan nilai lama. Service WAJIB mengirim null
+    // (bukan undefined / "") kalau field tidak ingin diubah.
     const [result] = await db.query(
         `UPDATE buku SET 
             nama_buku  = COALESCE(?, nama_buku),
@@ -70,6 +74,7 @@ exports.update = async (id, data) => {
     );
     return result;
 };
+
 
 // Update PDF saja (juga dipakai untuk SET pdf_buku = NULL saat hapus PDF)
 exports.updatePDF = async (id, pdf_buku) => {

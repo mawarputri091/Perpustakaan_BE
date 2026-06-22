@@ -5,8 +5,10 @@ const path = require('path');
 // CREATE - Menambah buku baru
 exports.createBuku = async (req, res) => {
     try {
+
         // ✅ FIX: req.file → req.files (karena route pakai upload.any())
         const buku = await bukuService.createData(req.body, req.files);
+
 
         res.status(201).json({
             status: 'success',
@@ -63,6 +65,7 @@ exports.getBukuById = async (req, res) => {
 exports.updateBuku = async (req, res) => {
     try {
         const { id } = req.params;
+
         // ✅ FIX: req.file → req.files (karena route pakai upload.any())
         const buku = await bukuService.updateData(id, req.body, req.files);
         
@@ -114,6 +117,7 @@ exports.hardDeleteBuku = async (req, res) => {
         });
     }
 };
+
 
 // Upload PDF (TIDAK DIUBAH — tetap pakai req.file karena route pakai upload.single)
 exports.uploadPDFBuku = async (req, res) => {
