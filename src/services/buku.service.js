@@ -31,7 +31,8 @@ exports.createData = async (data, file) => {
         nama_buku: data.nama_buku,
         harga_buku: data.harga_buku,
         jenis_buku: data.jenis_buku,
-        foto_buku: foto_buku
+        foto_buku: foto_buku,
+        pdf_buku: null // ✅ TAMBAHKAN INI (default null)
     };
 
     await bukuModel.create(newData);
@@ -81,6 +82,7 @@ exports.updateData = async (id, data, file) => {
         harga_buku: data.harga_buku || existingBuku.harga_buku,
         jenis_buku: data.jenis_buku || existingBuku.jenis_buku,
         foto_buku: file ? file.filename : existingBuku.foto_buku,
+        pdf_buku: existingBuku.pdf_buku, // ✅ TAMBAHKAN (pertahankan PDF yang sudah ada)
         updated_at: new Date()
     };
 
@@ -123,6 +125,73 @@ exports.hardDeleteData = async (id) => {
         }
     }
 
+    // ✅ TAMBAHKAN: Hapus file PDF jika ada
+    if (existingBuku.pdf_buku) {
+        const pdfPath = path.join(__dirname, '../uploads/pdfs', existingBuku.pdf_buku);
+        if (fs.existsSync(pdfPath)) {
+            fs.unlinkSync(pdfPath);
+            console.log(`PDF ${existingBuku.pdf_buku} berhasil dihapus`);
+        }
+    }
+
     await bukuModel.hardDelete(id);
+    return true;
+};
+
+// ✅ FUNGSI BARU: Upload PDF untuk buku
+exports.uploadPDF = async (id, file) => {
+    // Cek apakah buku ada
+    const existingBuku = await bukuModel.getById(id);
+    if (!existingBuku) {
+        const error = new Error('Buku tidak ditemukan');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // Jika sudah ada PDF lama, hapus dulu
+    if (existingBuku.pdf_buku) {
+        const oldPdfPath = path.join(__dirname, '../uploads/pdfs', existingBuku.pdf_buku);
+        if (fs.existsSync(oldPdfPath)) {
+            fs.unlinkSync(oldPdfPath);
+            console.log(`PDF lama ${existingBuku.pdf_buku} berhasil dihapus`);
+        }
+    }
+
+    // Simpan PDF baru
+    const pdf_buku = file.filename;
+    await bukuModel.updatePDF(id, pdf_buku);
+
+    // Ambil data terbaru
+    const updatedBuku = await bukuModel.getById(id);
+    return updatedBuku;
+};
+
+// ✅ FUNGSI BARU: Hapus PDF saja
+exports.deletePDF = async (id) => {
+    // Cek apakah buku ada
+    const existingBuku = await bukuModel.getById(id);
+    if (!existingBuku) {
+        const error = new Error('Buku tidak ditemukan');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // Cek apakah ada PDF
+    if (!existingBuku.pdf_buku) {
+        const error = new Error('Buku ini tidak memiliki PDF');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // Hapus file PDF
+    const pdfPath = path.join(__dirname, '../uploads/pdfs', existingBuku.pdf_buku);
+    if (fs.existsSync(pdfPath)) {
+        fs.unlinkSync(pdfPath);
+        console.log(`PDF ${existingBuku.pdf_buku} berhasil dihapus`);
+    }
+
+    // Update database: set pdf_buku = null
+    await bukuModel.updatePDF(id, null);
+
     return true;
 };
