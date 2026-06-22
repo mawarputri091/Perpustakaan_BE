@@ -22,6 +22,13 @@ exports.getBySiswaId = async (siswa_id) => {
   return await peminjamanModel.findBySiswaId(siswa_id)
 }
 
+// ✅ BARU: dipakai endpoint GET /peminjaman?status=...
+exports.getByStatus = async (status) => {
+  return await peminjamanModel.findByStatus(status)
+}
+
+// ✅ DIUBAH: pinjam (request online dari siswa) sekarang TIDAK langsung aktif.
+// Status awal = 'menunggu', stok buku BELUM dikurangi sampai admin approve.
 exports.pinjam = async (data) => {
   const { siswa_id, buku_id } = data
 
@@ -35,8 +42,107 @@ exports.pinjam = async (data) => {
 
   if (buku.stok <= 0) throw new AppError('STOK_HABIS', 400)
 
+  // findAktifBySiswaAndBuku sekarang juga mengecek status 'menunggu' (lihat model)
   const aktif = await peminjamanModel.findAktifBySiswaAndBuku(siswa_id, buku_id)
-  if (aktif) throw new AppError('SUDAH_MEMINJAM_BUKU_INI', 400)
+  if (aktif) throw new AppError('SUDAH_MENGAJUKAN_ATAU_MEMINJAM_BUKU_INI', 400)
+
+  // tanggal_pinjam & tanggal_kembali di sini masih bersifat "perkiraan",
+  // akan di-set ulang saat admin approve (lihat exports.approve di bawah)
+  const tanggal_pinjam = new Date()
+  const tanggal_kembali = new Date()
+  tanggal_kembali.setDate(tanggal_kembali.getDate() + DURASI_HARI)
+
+  const newData = {
+    id: crypto.randomUUID(),
+    siswa_id,
+    buku_id,
+    tanggal_pinjam,
+    tanggal_kembali,
+    status: 'menunggu' // ✅ status awal = menunggu approval admin, BUKAN langsung 'dipinjam'
+  }
+
+  // ✅ Tidak ada transaksi kurangi stok di sini lagi — stok baru dikurangi saat approve
+  await peminjamanModel.create(newData)
+
+  return newData
+}
+
+// ✅ BARU: admin approve permintaan peminjaman → status jadi 'dipinjam', stok dikurangi
+exports.approve = async (id) => {
+  const peminjaman = await peminjamanModel.findById(id)
+  if (!peminjaman) throw new AppError('PEMINJAMAN_NOT_FOUND', 404)
+
+  if (peminjaman.status !== 'menunggu') {
+    throw new AppError('PEMINJAMAN_BUKAN_STATUS_MENUNGGU', 400)
+  }
+
+  // Cek ulang stok saat approve (bisa saja stok berubah sejak request diajukan)
+  const buku = await bukuModel.getById(peminjaman.buku_id)
+  if (!buku) throw new AppError('BUKU_NOT_FOUND', 404)
+  if (buku.stok <= 0) throw new AppError('STOK_HABIS', 400)
+
+  // Mulai hitung durasi 7 hari dari saat di-approve, bukan dari saat request diajukan
+  const tanggal_pinjam = new Date()
+  const tanggal_kembali = new Date()
+  tanggal_kembali.setDate(tanggal_kembali.getDate() + DURASI_HARI)
+
+  const conn = await db.getConnection()
+  try {
+    await conn.beginTransaction()
+    await conn.query(`
+      UPDATE peminjaman 
+      SET status = 'dipinjam', tanggal_pinjam = ?, tanggal_kembali = ?, updated_at = NOW()
+      WHERE id = ?
+    `, [tanggal_pinjam, tanggal_kembali, id])
+    await conn.query('UPDATE buku SET stok = stok - 1 WHERE id = ?', [peminjaman.buku_id])
+    await conn.commit()
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
+
+  return {
+    id,
+    status: 'dipinjam',
+    tanggal_pinjam,
+    tanggal_kembali
+  }
+}
+
+// ✅ BARU: admin tolak permintaan peminjaman → status jadi 'ditolak', stok TIDAK berubah
+// (karena saat request, stok belum dikurangi sama sekali)
+exports.reject = async (id) => {
+  const peminjaman = await peminjamanModel.findById(id)
+  if (!peminjaman) throw new AppError('PEMINJAMAN_NOT_FOUND', 404)
+
+  if (peminjaman.status !== 'menunggu') {
+    throw new AppError('PEMINJAMAN_BUKAN_STATUS_MENUNGGU', 400)
+  }
+
+  await peminjamanModel.updateStatus(id, 'ditolak')
+
+  return { id, status: 'ditolak' }
+}
+
+// ✅ BARU: petugas/admin input peminjaman OFFLINE (siswa datang langsung ke perpustakaan)
+// Langsung berstatus 'dipinjam' tanpa proses approval, karena petugas yang menyaksikan langsung.
+exports.pinjamOffline = async (data) => {
+  const { siswa_id, buku_id } = data
+
+  if (!siswa_id || !buku_id) throw new AppError('INVALID_PAYLOAD', 400)
+
+  const siswa = await siswaModel.findById(siswa_id)
+  if (!siswa) throw new AppError('SISWA_NOT_FOUND', 404)
+
+  const buku = await bukuModel.getById(buku_id)
+  if (!buku) throw new AppError('BUKU_NOT_FOUND', 404)
+
+  if (buku.stok <= 0) throw new AppError('STOK_HABIS', 400)
+
+  const aktif = await peminjamanModel.findAktifBySiswaAndBuku(siswa_id, buku_id)
+  if (aktif) throw new AppError('SUDAH_MENGAJUKAN_ATAU_MEMINJAM_BUKU_INI', 400)
 
   const tanggal_pinjam = new Date()
   const tanggal_kembali = new Date()
@@ -48,7 +154,7 @@ exports.pinjam = async (data) => {
     buku_id,
     tanggal_pinjam,
     tanggal_kembali,
-    status: 'dipinjam'
+    status: 'dipinjam' // langsung aktif, tanpa lewat status menunggu
   }
 
   const conn = await db.getConnection()
@@ -76,6 +182,11 @@ exports.kembalikan = async (id) => {
 
   if (peminjaman.status === 'dikembalikan' || peminjaman.status === 'terlambat') {
     throw new AppError('BUKU_SUDAH_DIKEMBALIKAN', 400)
+  }
+
+  // ✅ Tambahan guard: tidak bisa "kembalikan" kalau statusnya masih menunggu/ditolak
+  if (peminjaman.status === 'menunggu' || peminjaman.status === 'ditolak') {
+    throw new AppError('PEMINJAMAN_BELUM_AKTIF', 400)
   }
 
   const tanggal_dikembalikan = new Date()

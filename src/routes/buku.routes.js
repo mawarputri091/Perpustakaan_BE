@@ -5,6 +5,14 @@ const bukuController = require('../controllers/buku.controller');
 const { authenticateToken: authMiddleware, authorizeAdmin } = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 
+// ✅ FIX: Gunakan upload.fields() supaya foto_buku & pdf_buku masuk ke req.files
+// dengan key terpisah, bukan upload.any() yang hanya mengisi req.files (array flat)
+// tanpa pernah mengisi req.file (yang dipakai controller versi lama).
+const uploadFields = upload.fields([
+    { name: 'foto_buku', maxCount: 1 },
+    { name: 'pdf_buku', maxCount: 1 }
+]);
+
 // ========== ROUTE YANG BISA DIAKSES SEMUA USER (Gak perlu login) ==========
 router.get('/', bukuController.getAllBuku);
 router.get('/:id', bukuController.getBukuById);
@@ -15,9 +23,9 @@ router.delete('/hard/:id', authMiddleware, authorizeAdmin, bukuController.hardDe
 router.delete('/permanent/:id', authMiddleware, authorizeAdmin, bukuController.hardDeleteBuku);
 
 // CREATE, UPDATE, DELETE (hanya admin)
-// ✅ Ganti upload.single('foto_buku') menjadi upload.any()
-router.post('/', authMiddleware, authorizeAdmin, upload.any(), bukuController.createBuku);
-router.put('/:id', authMiddleware, authorizeAdmin, upload.any(), bukuController.updateBuku);
+// ✅ FIX: upload.any() diganti uploadFields supaya foto_buku & pdf_buku terbaca benar
+router.post('/', authMiddleware, authorizeAdmin, uploadFields, bukuController.createBuku);
+router.put('/:id', authMiddleware, authorizeAdmin, uploadFields, bukuController.updateBuku);
 router.delete('/:id', authMiddleware, authorizeAdmin, bukuController.deleteBuku);
 
 // ========== ROUTE BARU UNTUK PDF (hanya admin) ==========
