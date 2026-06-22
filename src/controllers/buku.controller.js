@@ -2,10 +2,11 @@ const bukuService = require('../services/buku.service');
 const fs = require('fs');
 const path = require('path');
 
-// CREATE - Menambah buku baru (TIDAK DIUBAH)
+// CREATE - Menambah buku baru
 exports.createBuku = async (req, res) => {
     try {
-        const buku = await bukuService.createData(req.body, req.file);
+        // ✅ FIX: req.file → req.files (karena route pakai upload.any())
+        const buku = await bukuService.createData(req.body, req.files);
 
         res.status(201).json({
             status: 'success',
@@ -58,11 +59,12 @@ exports.getBukuById = async (req, res) => {
     }
 };
 
-// UPDATE - Mengupdate buku (TIDAK DIUBAH)
+// UPDATE - Mengupdate buku
 exports.updateBuku = async (req, res) => {
     try {
         const { id } = req.params;
-        const buku = await bukuService.updateData(id, req.body, req.file);
+        // ✅ FIX: req.file → req.files (karena route pakai upload.any())
+        const buku = await bukuService.updateData(id, req.body, req.files);
         
         res.status(200).json({
             status: 'success',
@@ -113,7 +115,7 @@ exports.hardDeleteBuku = async (req, res) => {
     }
 };
 
-// ✅ FUNGSI BARU: Upload PDF (TAMBAHAN, TIDAK MENGGANTI YANG ADA)
+// Upload PDF (TIDAK DIUBAH — tetap pakai req.file karena route pakai upload.single)
 exports.uploadPDFBuku = async (req, res) => {
     try {
         const { id } = req.params;
@@ -140,7 +142,7 @@ exports.uploadPDFBuku = async (req, res) => {
     }
 };
 
-// ✅ FUNGSI BARU: Hapus PDF (TAMBAHAN, TIDAK MENGGANTI YANG ADA)
+// Hapus PDF (TIDAK DIUBAH)
 exports.deletePDFBuku = async (req, res) => {
     try {
         const { id } = req.params;
