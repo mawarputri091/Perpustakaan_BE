@@ -15,8 +15,16 @@ router.delete('/hard/:id', authMiddleware, authorizeAdmin, bukuController.hardDe
 router.delete('/permanent/:id', authMiddleware, authorizeAdmin, bukuController.hardDeleteBuku);
 
 // CREATE, UPDATE, DELETE (hanya admin)
-router.post('/', authMiddleware, authorizeAdmin, upload.single('foto_buku'), bukuController.createBuku);
-router.put('/:id', authMiddleware, authorizeAdmin, upload.single('foto_buku'), bukuController.updateBuku);
+// ✅ Ganti upload.single('foto_buku') menjadi upload.any()
+router.post('/', authMiddleware, authorizeAdmin, upload.any(), bukuController.createBuku);
+router.put('/:id', authMiddleware, authorizeAdmin, upload.any(), bukuController.updateBuku);
 router.delete('/:id', authMiddleware, authorizeAdmin, bukuController.deleteBuku);
+
+// ========== ROUTE BARU UNTUK PDF (hanya admin) ==========
+// Upload PDF untuk buku
+router.post('/:id/pdf', authMiddleware, authorizeAdmin, upload.single('pdf_buku'), bukuController.uploadPDFBuku);
+
+// Hapus PDF dari buku
+router.delete('/:id/pdf', authMiddleware, authorizeAdmin, bukuController.deletePDFBuku);
 
 module.exports = router;
