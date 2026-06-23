@@ -56,6 +56,14 @@ exports.getByIdIncludeDeleted = async (id) => {
 // ========== CREATE ==========
 
 exports.create = async (data) => {
+    console.log('💾 INSERT DATA:', {
+        id: data.id,
+        nama_buku: data.nama_buku,
+        foto_buku: data.foto_buku,
+        pdf_buku: data.pdf_buku,
+        stok: data.stok
+    });
+    
     await db.query(
         `INSERT INTO buku (id, nama_buku, harga_buku, jenis_buku, foto_buku, pdf_buku, stok, created_at, updated_at) 
          VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
@@ -77,6 +85,14 @@ exports.create = async (data) => {
 // untuk "skip update" dan mempertahankan nilai lama. Service WAJIB mengirim null
 // (bukan undefined / "") kalau field tidak ingin diubah.
 exports.update = async (id, data) => {
+    console.log('💾 UPDATE DATA:', {
+        id,
+        nama_buku: data.nama_buku,
+        foto_buku: data.foto_buku,
+        pdf_buku: data.pdf_buku,
+        stok: data.stok
+    });
+    
     const [result] = await db.query(
         `UPDATE buku SET 
             nama_buku = COALESCE(?, nama_buku),
@@ -109,6 +125,17 @@ exports.updatePDF = async (id, pdf_buku) => {
     return result;
 };
 
+// ========== TAMBAHAN: UPDATE FOTO ==========
+
+// Update FOTO saja (dipakai untuk SET foto_buku = NULL saat hapus foto)
+exports.updateFoto = async (id, foto_buku) => {
+    const [result] = await db.query(
+        'UPDATE buku SET foto_buku = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL',
+        [foto_buku, id]
+    );
+    return result;
+};
+
 // ========== DELETE ==========
 
 exports.delete = async (id) => {
@@ -122,6 +149,17 @@ exports.hardDelete = async (id) => {
     const [result] = await db.query(
         'DELETE FROM buku WHERE id = ?',
         [id]
+    );
+    return result;
+};
+
+// ========== TAMBAHAN: UPDATE FOTO & PDF BERSAMAAN ==========
+
+// Update Foto dan PDF sekaligus
+exports.updateFotoPdf = async (id, foto_buku, pdf_buku) => {
+    const [result] = await db.query(
+        'UPDATE buku SET foto_buku = ?, pdf_buku = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL',
+        [foto_buku, pdf_buku, id]
     );
     return result;
 };

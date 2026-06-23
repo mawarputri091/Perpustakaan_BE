@@ -25,17 +25,22 @@ const storage = multer.diskStorage({
             fs.mkdirSync(uploadPath, { recursive: true });
         }
         
+        console.log(`📁 Saving ${file.fieldname} to: ${uploadPath}`);
         cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-        // Mengganti nama file agar unik: TanggalHariINI-NamaAsli.jpg
+        // Mengganti nama file agar unik
         const uniqueSuffix = Date.now() + '_' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        const filename = uniqueSuffix + path.extname(file.originalname);
+        console.log(`📄 Filename: ${filename}`);
+        cb(null, filename);
     }
 });
 
 // ========== FILE FILTER ==========
 const fileFilter = (req, file, cb) => {
+    console.log(`🔍 Filtering file: ${file.fieldname} - ${file.originalname} - ${file.mimetype}`);
+    
     // Jika upload PDF
     if (file.fieldname === 'pdf_buku') {
         const allowedTypes = /pdf/;
@@ -48,16 +53,16 @@ const fileFilter = (req, file, cb) => {
             cb(new Error('Hanya diperbolehkan mengupload file PDF'));
         }
     }
-    // Jika upload foto (default)
+    // Jika upload foto
     else if (file.fieldname === 'foto_buku') {
-        const allowedTypes = /jpeg|jpg|png/;
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimeType = allowedTypes.test(file.mimetype);
         
         if (extname && mimeType) {
             cb(null, true);
         } else {
-            cb(new Error('Hanya diperbolehkan mengupload file gambar (jpeg, jpg, png)'));
+            cb(new Error('Hanya diperbolehkan mengupload file gambar (jpeg, jpg, png, gif, webp)'));
         }
     }
     // Jika field lain (seharusnya tidak terjadi)
