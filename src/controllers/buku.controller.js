@@ -5,10 +5,13 @@ const path = require('path');
 // CREATE - Menambah buku baru
 exports.createBuku = async (req, res) => {
     try {
-
-        // ✅ FIX: req.file → req.files (karena route pakai upload.any())
+        // ✅ Debug log
+        console.log('========== CREATE BUKU ==========');
+        console.log('📝 req.body:', req.body);
+        console.log('📁 req.files:', req.files);
+        console.log('================================');
+        
         const buku = await bukuService.createData(req.body, req.files);
-
 
         res.status(201).json({
             status: 'success',
@@ -16,6 +19,7 @@ exports.createBuku = async (req, res) => {
             data: buku
         });
     } catch (error) {
+        console.error('❌ Error createBuku:', error);
         res.status(error.statusCode || 500).json({
             status: 'error',
             message: error.message || 'Terjadi kesalahan pada server'
@@ -23,7 +27,7 @@ exports.createBuku = async (req, res) => {
     }
 };
 
-// GET ALL - Mendapatkan semua buku (TIDAK DIUBAH)
+// GET ALL - Mendapatkan semua buku
 exports.getAllBuku = async (req, res) => {
     try {
         const buku = await bukuService.getAllData();
@@ -42,7 +46,7 @@ exports.getAllBuku = async (req, res) => {
     }
 };
 
-// GET BY ID - Mendapatkan buku berdasarkan id (TIDAK DIUBAH)
+// GET BY ID - Mendapatkan buku berdasarkan id
 exports.getBukuById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -65,8 +69,13 @@ exports.getBukuById = async (req, res) => {
 exports.updateBuku = async (req, res) => {
     try {
         const { id } = req.params;
-
-        // ✅ FIX: req.file → req.files (karena route pakai upload.any())
+        
+        // ✅ Debug log
+        console.log('========== UPDATE BUKU ==========');
+        console.log('📝 req.body:', req.body);
+        console.log('📁 req.files:', req.files);
+        console.log('================================');
+        
         const buku = await bukuService.updateData(id, req.body, req.files);
         
         res.status(200).json({
@@ -75,6 +84,7 @@ exports.updateBuku = async (req, res) => {
             data: buku
         });
     } catch (error) {
+        console.error('❌ Error updateBuku:', error);
         res.status(error.statusCode || 500).json({
             status: 'error',
             message: error.message || 'Terjadi kesalahan pada server'
@@ -82,7 +92,7 @@ exports.updateBuku = async (req, res) => {
     }
 };
 
-// DELETE - Menghapus buku (soft delete) (TIDAK DIUBAH)
+// DELETE - Menghapus buku (soft delete)
 exports.deleteBuku = async (req, res) => {
     try {
         const { id } = req.params;
@@ -100,7 +110,7 @@ exports.deleteBuku = async (req, res) => {
     }
 };
 
-// HARD DELETE - Menghapus buku secara permanen (TIDAK DIUBAH)
+// HARD DELETE - Menghapus buku secara permanen
 exports.hardDeleteBuku = async (req, res) => {
     try {
         const { id } = req.params;
@@ -118,8 +128,7 @@ exports.hardDeleteBuku = async (req, res) => {
     }
 };
 
-
-// Upload PDF (TIDAK DIUBAH — tetap pakai req.file karena route pakai upload.single)
+// Upload PDF (endpoint khusus)
 exports.uploadPDFBuku = async (req, res) => {
     try {
         const { id } = req.params;
@@ -139,6 +148,7 @@ exports.uploadPDFBuku = async (req, res) => {
             data: buku
         });
     } catch (error) {
+        console.error('❌ Error uploadPDF:', error);
         res.status(error.statusCode || 500).json({
             status: 'error',
             message: error.message || 'Terjadi kesalahan pada server'
@@ -146,17 +156,128 @@ exports.uploadPDFBuku = async (req, res) => {
     }
 };
 
-// Hapus PDF (TIDAK DIUBAH)
+// Hapus PDF
 exports.deletePDFBuku = async (req, res) => {
     try {
         const { id } = req.params;
-        await bukuService.deletePDF(id);
+        const buku = await bukuService.deletePDF(id);
         
         res.status(200).json({
             status: 'success',
-            message: 'PDF berhasil dihapus dari buku'
+            message: 'PDF berhasil dihapus dari buku',
+            data: buku
         });
     } catch (error) {
+        res.status(error.statusCode || 500).json({
+            status: 'error',
+            message: error.message || 'Terjadi kesalahan pada server'
+        });
+    }
+};
+
+// ========== TAMBAHAN: ENDPOINT KHUSUS FOTO ==========
+
+// Upload FOTO (endpoint khusus)
+exports.uploadFotoBuku = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('========== UPLOAD FOTO ==========');
+        console.log('📝 ID:', id);
+        console.log('📁 req.file:', req.file);
+        console.log('================================');
+        
+        if (!req.file) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'File foto tidak ditemukan. Silakan upload file foto.'
+            });
+        }
+
+        const buku = await bukuService.uploadFoto(id, req.file);
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Foto berhasil diupload',
+            data: buku
+        });
+    } catch (error) {
+        console.error('❌ Error uploadFoto:', error);
+        res.status(error.statusCode || 500).json({
+            status: 'error',
+            message: error.message || 'Terjadi kesalahan pada server'
+        });
+    }
+};
+
+// Hapus FOTO
+exports.deleteFotoBuku = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const buku = await bukuService.deleteFoto(id);
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Foto berhasil dihapus dari buku',
+            data: buku
+        });
+    } catch (error) {
+        console.error('❌ Error deleteFoto:', error);
+        res.status(error.statusCode || 500).json({
+            status: 'error',
+            message: error.message || 'Terjadi kesalahan pada server'
+        });
+    }
+};
+
+// ========== TAMBAHAN: UPDATE FOTO & PDF BERSAMAAN ==========
+
+// Update Foto dan PDF sekaligus
+exports.updateFotoPdfBuku = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('========== UPDATE FOTO & PDF ==========');
+        console.log('📝 ID:', id);
+        console.log('📁 req.files:', req.files);
+        console.log('================================');
+        
+        const buku = await bukuService.updateFotoPdf(id, req.files);
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Foto dan PDF berhasil diupdate',
+            data: buku
+        });
+    } catch (error) {
+        console.error('❌ Error updateFotoPdf:', error);
+        res.status(error.statusCode || 500).json({
+            status: 'error',
+            message: error.message || 'Terjadi kesalahan pada server'
+        });
+    }
+};
+
+// ========== TAMBAHAN: DELETE FOTO & PDF BERSAMAAN ==========
+
+// Delete Foto dan PDF sekaligus
+exports.deleteFotoPdfBuku = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log('========== DELETE FOTO & PDF ==========');
+        console.log('📝 ID:', id);
+        console.log('================================');
+        
+        const buku = await bukuService.deleteFotoPdf(id);
+        
+        res.status(200).json({
+            status: 'success',
+            message: 'Foto dan PDF berhasil dihapus dari buku',
+            data: buku
+        });
+    } catch (error) {
+        console.error('❌ Error deleteFotoPdf:', error);
         res.status(error.statusCode || 500).json({
             status: 'error',
             message: error.message || 'Terjadi kesalahan pada server'
