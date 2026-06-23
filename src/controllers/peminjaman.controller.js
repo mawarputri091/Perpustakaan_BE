@@ -2,7 +2,6 @@ const asyncHandler = require('../utils/asyncHandler')
 const peminjamanService = require('../services/peminjaman.service')
 
 exports.getAll = asyncHandler(async (req, res) => {
-  // ✅ BARU: support filter ?status=menunggu / dipinjam / dikembalikan / terlambat / ditolak
   const { status } = req.query
   const data = status
     ? await peminjamanService.getByStatus(status)
@@ -20,7 +19,7 @@ exports.getBySiswaId = asyncHandler(async (req, res) => {
   res.json({ status: 'success', data })
 })
 
-// Siswa mengajukan peminjaman (online) → status awal 'menunggu'
+// Siswa mengajukan peminjaman online → status awal 'menunggu'
 exports.pinjam = asyncHandler(async (req, res) => {
   const data = await peminjamanService.pinjam(req.body)
   res.status(201).json({
@@ -30,7 +29,6 @@ exports.pinjam = asyncHandler(async (req, res) => {
   })
 })
 
-// ✅ BARU: admin ACC pengajuan peminjaman → status jadi 'dipinjam'
 exports.approve = asyncHandler(async (req, res) => {
   const data = await peminjamanService.approve(req.params.id)
   res.json({
@@ -40,7 +38,6 @@ exports.approve = asyncHandler(async (req, res) => {
   })
 })
 
-// ✅ BARU: admin tolak pengajuan peminjaman → status jadi 'ditolak'
 exports.reject = asyncHandler(async (req, res) => {
   const data = await peminjamanService.reject(req.params.id)
   res.json({
@@ -50,7 +47,8 @@ exports.reject = asyncHandler(async (req, res) => {
   })
 })
 
-// ✅ BARU: admin input peminjaman offline (siswa datang langsung) → langsung 'dipinjam'
+// ✅ DIUBAH: admin input peminjaman offline — kirim nama_peminjam & buku_id saja,
+// TIDAK perlu siswa_id karena pengunjung walk-in tidak punya akun.
 exports.pinjamOffline = asyncHandler(async (req, res) => {
   const data = await peminjamanService.pinjamOffline(req.body)
   res.status(201).json({
