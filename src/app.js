@@ -33,6 +33,9 @@ app.use('/uploads', express.static('public/uploads'))
 const peminjamanRoutes = require('./routes/peminjaman.routes')
 app.use('/peminjaman', peminjamanRoutes)
 
+const membershipRoutes = require('./routes/membership.routes')
+app.use('/membership', membershipRoutes)
+
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
