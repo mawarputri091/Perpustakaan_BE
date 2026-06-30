@@ -15,6 +15,18 @@ exports.getUserById = async (id) => {
   return user
 }
 
+exports.updateUser = async (id, data) => {
+  const user = await userModel.findById(id)
+
+  if (!user) {
+    throw new AppError('USER_NOT_FOUND', 404)
+  }
+
+  await userModel.update(id, data)
+
+  return await userModel.findById(id)
+}
+
 exports.deleteUser = async (id) => {
   const user = await userModel.findById(id)
 
@@ -25,10 +37,8 @@ exports.deleteUser = async (id) => {
   await userModel.deleteById(id)
 }
 
-// HARD DELETE (permanen) - Menghapus data secara fisik dari database
-exports.hardDelete = async (id) => {
-  // Cek apakah data ada (termasuk yang sudah soft delete)
-  // Kita perlu query langsung ke model atau buat method baru untuk cek semua data
+// Hard delete (permanen) — cek termasuk yang sudah soft delete
+exports.hardDeleteUser = async (id) => {
   const user = await userModel.findByIdIncludingDeleted(id)
 
   if (!user) {
@@ -36,10 +46,4 @@ exports.hardDelete = async (id) => {
   }
 
   await userModel.hardDelete(id)
-}
-
-// TAMBAHKAN METHOD INI - Alias untuk hardDelete
-// Supaya bisa dipanggil dengan nama hardDeleteUser dari controller
-exports.hardDeleteUser = async (id) => {
-  return await exports.hardDelete(id)
 }
