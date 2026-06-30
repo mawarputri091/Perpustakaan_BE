@@ -6,6 +6,7 @@ const { authenticateToken: authMiddleware } = require('../middlewares/auth.middl
 
 router.get('/', authMiddleware, userController.getAll)
 router.get('/:id', authMiddleware, userController.getById)
+router.put('/:id', authMiddleware, userController.update)
 router.delete('/:id', authMiddleware, userController.delete)
 router.delete('/:id/hard', authMiddleware, userController.hardDelete)
 

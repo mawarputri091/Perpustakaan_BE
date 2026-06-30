@@ -2,7 +2,7 @@ const db = require('../config/db')
 
 exports.findAll = async () => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, role, membership FROM users'
+        'SELECT id, username, name, email, no_telp, role FROM users'
     )
 
     return rows
@@ -10,29 +10,27 @@ exports.findAll = async () => {
 
 exports.findById = async (id) => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, role, membership FROM users WHERE id = ?',
+        'SELECT id, username, name, email, no_telp, role FROM users WHERE id = ?',
         [id]
     )
 
     return rows[0]
 }
 
-// METHOD BARU: Find by ID termasuk yang sudah di-soft delete
-// Catatan: Karena tabel users tidak punya soft delete, method ini sama dengan findById
+// Catatan: tabel users tidak punya soft delete, method ini sama dengan findById
 exports.findByIdIncludingDeleted = async (id) => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, role, membership FROM users WHERE id = ?',
+        'SELECT id, username, name, email, no_telp, role FROM users WHERE id = ?',
         [id]
     )
 
     return rows[0]
 }
 
-// METHOD BARU: Find all termasuk yang sudah di-soft delete
-// Catatan: Karena tabel users tidak punya soft delete, method ini sama dengan findAll
+// Catatan: tabel users tidak punya soft delete, method ini sama dengan findAll
 exports.findAllIncludingDeleted = async () => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, role, membership FROM users'
+        'SELECT id, username, name, email, no_telp, role FROM users'
     )
 
     return rows
@@ -45,8 +43,6 @@ exports.deleteById = async (id) => {
     )
 }
 
-// METHOD BARU: Soft delete (jika nanti butuh soft delete)
-// Catatan: Method ini akan error jika kolom deleted_at tidak ada di tabel users
 exports.softDelete = async (id) => {
     try {
         await db.query(
@@ -58,7 +54,6 @@ exports.softDelete = async (id) => {
     }
 }
 
-// METHOD BARU: Restore soft deleted data (jika butuh)
 exports.restore = async (id) => {
     try {
         await db.query(
@@ -72,38 +67,37 @@ exports.restore = async (id) => {
 
 exports.findByUsername = async (username) => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, password, role, membership FROM users WHERE username = ?',
+        'SELECT id, username, name, email, no_telp, password, role FROM users WHERE username = ?',
         [username]
     )
 
     return rows[0]
 }
 
-// ✅ BARU: dipakai untuk fitur "Lupa Akun" / cek duplikat saat register
+// Dipakai untuk forgot-username, forgot-password, dan cek duplikat saat register
 exports.findByEmail = async (email) => {
     const [rows] = await db.query(
-        'SELECT id, username, name, email, password, role, membership FROM users WHERE email = ?',
+        'SELECT id, username, name, email, no_telp, password, role FROM users WHERE email = ?',
         [email]
     )
 
     return rows[0]
 }
 
-// ✅ DIUBAH: create sekarang menerima name, email, membership juga.
-// membership selalu default 'gratis' kalau tidak dikirim (lihat service untuk enforce ini).
+// role di sini menampung SEMUA status: 'admin' | 'gratis' | 'premium'.
+// Default 'gratis' kalau tidak dikirim — register selalu mulai dari gratis.
 exports.create = async (data) => {
-    const { id, username, name, email, password, role, membership } = data
+    const { id, username, name, email, no_telp, password, role } = data
 
     await db.query(
-        `INSERT INTO users (id, username, name, email, password, role, membership) 
+        `INSERT INTO users (id, username, name, email, no_telp, password, role) 
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id, username, name || null, email || null, password, role || 'user', membership || 'gratis']
+        [id, username, name || null, email || null, no_telp || null, password, role || 'gratis']
     )
 }
 
-// UPDATE method: Update user
 exports.update = async (id, data) => {
-    const { username, name, email, password, role, membership } = data
+    const { username, name, email, no_telp, password, role } = data
 
     let updateFields = []
     let updateValues = []
@@ -120,6 +114,10 @@ exports.update = async (id, data) => {
         updateFields.push('email = ?')
         updateValues.push(email)
     }
+    if (no_telp !== undefined) {
+        updateFields.push('no_telp = ?')
+        updateValues.push(no_telp)
+    }
     if (password) {
         updateFields.push('password = ?')
         updateValues.push(password)
@@ -127,10 +125,6 @@ exports.update = async (id, data) => {
     if (role) {
         updateFields.push('role = ?')
         updateValues.push(role)
-    }
-    if (membership) {
-        updateFields.push('membership = ?')
-        updateValues.push(membership)
     }
 
     if (updateFields.length === 0) {
@@ -145,15 +139,14 @@ exports.update = async (id, data) => {
     )
 }
 
-// ✅ BARU: khusus update membership saja (dipakai endpoint /membership/upgrade)
-exports.updateMembership = async (id, membership) => {
+// Khusus update role saja (dipakai endpoint upgrade membership)
+exports.updateRole = async (id, role) => {
     await db.query(
-        'UPDATE users SET membership = ? WHERE id = ?',
-        [membership, id]
+        'UPDATE users SET role = ? WHERE id = ?',
+        [role, id]
     )
 }
 
-// HARD DELETE (permanen) - Menghapus data secara fisik dari database
 exports.hardDelete = async (id) => {
     const [existing] = await db.query(
         'SELECT id FROM users WHERE id = ?',

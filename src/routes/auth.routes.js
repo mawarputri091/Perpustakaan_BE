@@ -5,17 +5,12 @@ const { authenticateToken: authMiddleware } = require('../middlewares/auth.middl
 const authController = require('../controllers/auth.controller')
 
 router.post('/login', authController.login)
-
-// ✅ BARU: register akun baru (selalu mulai sebagai gratis)
 router.post('/register', authController.register)
-
-// ✅ BARU: lupa password — tidak perlu login (cek lewat email)
+router.post('/forgot-username', authController.forgotUsername)
 router.post('/forgot-password', authController.forgotPassword)
+router.post('/reset-password', authController.resetPassword)
 
 // route TERPROTEKSI
 router.post('/logout', authMiddleware, authController.logout)
-
-// ✅ BARU: ganti password — wajib login
-router.put('/change-password', authMiddleware, authController.changePassword)
 
 module.exports = router
