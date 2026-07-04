@@ -17,25 +17,23 @@ exports.findById = async (kode_kelas) => {
 
 exports.create = async (data) => {
   const { kode_kelas, nama_kelas } = data
-
   await db.query(
     'INSERT INTO kelas (kode_kelas, nama_kelas) VALUES (?, ?)',
     [kode_kelas, nama_kelas]
   )
 }
 
-exports.update = async (kode_kelas, data) => {
-  const { nama_kelas } = data
-
+exports.update = async (kode_kelas_lama, data) => {
+  const { kode_kelas, nama_kelas } = data
   await db.query(
-    'UPDATE kelas SET nama_kelas = ? WHERE kode_kelas = ?',
-    [nama_kelas, kode_kelas]
+    'UPDATE kelas SET kode_kelas = ?, nama_kelas = ?, updated_at = CURRENT_TIMESTAMP WHERE kode_kelas = ?',
+    [kode_kelas || '', nama_kelas || '', kode_kelas_lama || '']
   )
 }
 
-exports.softDelete = async (kode_kelas) => {
+exports.delete = async (kode_kelas) => {
   await db.query(
-    'UPDATE kelas SET deleted_at = NOW() WHERE kode_kelas = ?',
-    [kode_kelas]
+    'UPDATE kelas SET deleted_at = CURRENT_TIMESTAMP WHERE kode_kelas = ?',
+    [kode_kelas || '']
   )
 }
